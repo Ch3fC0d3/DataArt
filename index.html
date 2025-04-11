@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Truth, Redacted</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.25/Tone.min.js"></script>
+    <script src="gdg_parser.js"></script>
+    <script src="sound_effects.js"></script>
+    <script src="sketch.js"></script>
+</head>
+<body>
+    <!-- Scan lines effect overlay -->
+    <div class="scanlines"></div>
+    
+    <!-- Title will be drawn directly on canvas -->
+    
+    <div class="info">
+      Visualizing how government documents change over time - watch as the truth fades away.
+      <br>Data source: GDELT Project Government Document Graph
+      <br><span class="blink" id="loading-status">Loading data...</span>
+    </div>
+    
+    <div class="legend">
+      <h3>Document Changes Key</h3>
+      <div class="legend-item"><span class="legend-color original"></span> Original Text</div>
+      <div class="legend-item"><span class="legend-color redacted"></span> Redacted Text</div>
+      <div class="legend-item"><span class="legend-color source"></span> Source Information</div>
+      <p class="legend-note">Watch how government documents are modified over time, with sensitive information removed or reworded.</p>
+    </div>
+    
+    <button id="btn-toggle-ui" class="toggle-ui-btn">Hide Controls</button>
+
+    <div class="controls">
+      <button id="btn-toggle-flow">Pause Flow</button>
+      <button id="btn-add-block">Add Text Block</button>
+      
+      <div class="slider-container">
+        <label for="fade-speed">Fade Speed:</label>
+        <input type="range" min="0.1" max="2" step="0.1" value="0.5" class="slider" id="fade-speed">
+      </div>
+      
+      <div class="slider-container">
+        <label for="text-size">Text Size:</label>
+        <input type="range" min="10" max="30" step="1" value="20" class="slider" id="text-size">
+      </div>
+      
+      <div class="slider-container">
+        <label for="effect-intensity">Effect Intensity:</label>
+        <input type="range" min="0" max="100" step="1" value="50" class="slider" id="effect-intensity">
+      </div>
+      
+      <button id="btn-toggle-sound">Sound: OFF</button>
+      <button id="btn-theme">Theme: Cyber</button>
+    </div>
+    
+    <div class="stats" id="stats-panel">
+      Documents: 0 | Changes: 0 | Words Redacted: 0
+    </div>
+    
+    <script>
+        // Initialize sound effects
+        soundEffects = new SoundEffects();
+        
+        // Initialize the GDG parser
+        gdgParser = new GDGParser();
+        
+        // Handle user interaction to start audio context
+        document.addEventListener('click', async () => {
+            if (!soundEffects.initialized) {
+                await soundEffects.initialize();
+                // Start audio context on first user interaction
+                try {
+                    await Tone.start();
+                    console.log("Audio context started successfully");
+                } catch (error) {
+                    console.error("Failed to start audio context:", error);
+                }
+            }
+        });
+        
+        // Update the HTML to ensure proper initialization of the GDG parser and sound effects
+        // Initialize sound effects if not already initialized
+        if (!soundEffects.initialized) {
+            soundEffects.initialize();
+        }
+        
+        // For GDG parser, we don't need to call init as it's handled in preload() in sketch.js
+    </script>
+</body>
+</html>
