@@ -971,7 +971,7 @@ function drawTitle() {
   
   // Draw second line with ripple effect
   textSize(28);
-  drawRippleText('RIGHT BEFORE YOUR LIES', 50, 75);
+  drawRippleText('RIGHT BEFORE OUR LIES', 50, 75);
   
   // Draw subtitle
   textSize(20);
