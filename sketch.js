@@ -88,8 +88,13 @@ function preload() {
   console.log("Loading protest data...");
   updateLoadingStatus("Connecting to data...");
   
-  // Use our local server endpoint
-  const gdeltUrl = 'http://localhost:3000/api/gdelt';
+  // Determine if we're in production or development environment
+  const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+  
+  // Use Netlify function in production, local server in development
+  const gdeltUrl = isProduction 
+    ? '/.netlify/functions/gdelt' 
+    : 'http://localhost:3000/api/gdelt';
   console.log('Attempting to fetch from:', gdeltUrl);
   
   fetch(gdeltUrl)

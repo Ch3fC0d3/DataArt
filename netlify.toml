@@ -1,6 +1,10 @@
 [build]
-command = "npm run build"
-publish = "build"
+publish = "."
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
 
 [[redirects]]
 from = "/*"
@@ -11,5 +15,5 @@ status = 200
 NODE_VERSION = "18"
 NPM_VERSION = "9"
 
-[build.environment.production]
-NODE_ENV = "production"
+[functions]
+directory = "netlify/functions"
