@@ -1,0 +1,164 @@
+{
+  "entries": [
+    {
+      "id": "GDG-2024-04-12-001",
+      "source": "The New York Times",
+      "changes": [
+        {
+          "from": "Protests erupt in major cities over economic policies",
+          "to": "Demonstrations occur in urban areas regarding fiscal measures",
+          "type": "title"
+        },
+        {
+          "from": "Thousands of protesters gathered in downtown squares, demanding immediate action on rising costs of living.",
+          "to": "Large crowds assembled in central locations, calling for policy adjustments on cost of living issues.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-002",
+      "source": "The Washington Post",
+      "changes": [
+        {
+          "from": "Government confirms 150 injuries during protest",
+          "to": "Authorities report incidents during demonstration",
+          "type": "title"
+        },
+        {
+          "from": "Official sources confirm that 150 individuals were injured during the protest, with 20 requiring hospitalization.",
+          "to": "Government sources report that multiple individuals were treated for injuries during the demonstration.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-003",
+      "source": "The Guardian",
+      "changes": [
+        {
+          "from": "Security forces deployed to maintain order",
+          "to": "Law enforcement present to ensure public safety",
+          "type": "title"
+        },
+        {
+          "from": "Military units were deployed in key locations to prevent further unrest, with armored vehicles patrolling major thoroughfares.",
+          "to": "Law enforcement personnel were stationed at strategic locations to maintain public order.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-004",
+      "source": "Reuters",
+      "changes": [
+        {
+          "from": "Protest leaders call for nationwide strike",
+          "to": "Demonstration organizers urge coordinated action",
+          "type": "title"
+        },
+        {
+          "from": "Organizers of the protest movement have called for a nationwide strike to begin tomorrow, demanding immediate government response to economic crisis.",
+          "to": "Leaders of the demonstration movement have urged coordinated action across the country, calling for government attention to economic challenges.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-005",
+      "source": "Associated Press",
+      "changes": [
+        {
+          "from": "International observers report human rights violations",
+          "to": "Independent monitors document concerns",
+          "type": "title"
+        },
+        {
+          "from": "International human rights organizations have documented multiple instances of excessive force and arbitrary detentions during the protests.",
+          "to": "Independent observers have raised concerns about the handling of demonstrations and the treatment of participants.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-006",
+      "source": "BBC News",
+      "changes": [
+        {
+          "from": "Government announces emergency measures",
+          "to": "Authorities implement temporary measures",
+          "type": "title"
+        },
+        {
+          "from": "The government has announced a series of emergency measures in response to ongoing protests, including curfews and restrictions on public gatherings.",
+          "to": "Authorities have implemented temporary measures in response to demonstrations, including curfews and public gathering restrictions.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-007",
+      "source": "CNN",
+      "changes": [
+        {
+          "from": "Protesters clash with police in capital",
+          "to": "Demonstrators confront authorities in capital",
+          "type": "title"
+        },
+        {
+          "from": "Violent clashes erupted between protesters and police in the capital city, resulting in multiple injuries and arrests.",
+          "to": "Confrontations occurred between demonstrators and authorities in the capital city, resulting in multiple injuries and detentions.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-008",
+      "source": "Al Jazeera",
+      "changes": [
+        {
+          "from": "International community calls for restraint",
+          "to": "Global leaders urge calm",
+          "type": "title"
+        },
+        {
+          "from": "International leaders have called for restraint from both protesters and security forces, urging peaceful resolution of the crisis.",
+          "to": "Global leaders have urged calm from both demonstrators and authorities, calling for a peaceful resolution of the situation.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-009",
+      "source": "The Wall Street Journal",
+      "changes": [
+        {
+          "from": "Market reacts to protest unrest",
+          "to": "Financial markets respond to demonstrations",
+          "type": "title"
+        },
+        {
+          "from": "Financial markets have shown significant volatility in response to the ongoing protests, with major indices experiencing sharp declines.",
+          "to": "Financial markets have shown fluctuation in response to demonstrations, with major indices experiencing variations.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "GDG-2024-04-12-010",
+      "source": "The Financial Times",
+      "changes": [
+        {
+          "from": "Protest impact on economy",
+          "to": "Demonstration effects on economic activity",
+          "type": "title"
+        },
+        {
+          "from": "The ongoing protests have significantly impacted economic activity, with businesses reporting substantial losses and supply chains disrupted.",
+          "to": "The demonstrations have affected economic activity, with businesses reporting losses and supply chains facing challenges.",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

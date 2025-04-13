@@ -1,8 +1,47 @@
+/**
+ * Create a redacted version of the given text
+ * @param {string} text - The original text to redact
+ * @returns {string} Redacted version of the text
+ */
+function createRedactedVersion(text) {
+  if (!text) return 'Information redacted';
+  
+  // Words that should trigger redaction
+  const sensitivePatterns = [
+    /\b(?:classified|confidential|secret)\b/i,
+    /\b(?:casualties|deaths|injured|wounded)\b/i,
+    /\b(?:corruption|fraud|misconduct|violation)\b/i,
+    /\b(?:investigation|probe|inquiry)\b/i,
+    /\b(?:failure|mistake|error|incident)\b/i,
+    /\b(?:protest|unrest|riot|demonstration)\b/i,
+    /\b(?:intelligence|surveillance|operation)\b/i,
+    /\b(?:weapon|military|defense|police|security)\b/i,
+    /\b(?:government|official|authority)\b/i,
+    /\b(?:city|town|village|district|region)\b/i,
+    /\b(?:\d+(?:,\d{3})*(?:\.\d+)?)\b/ // numbers
+  ];
+
+  // Split text into words
+  let words = text.split(/\s+/);
+  
+  // Process each word
+  words = words.map(word => {
+    // Check if word matches any sensitive pattern
+    if (sensitivePatterns.some(pattern => pattern.test(word))) {
+      // Replace with [REDACTED]
+      return '[REDACTED]';
+    }
+    return word;
+  });
+  
+  return words.join(' ');
+}
+
 // Global variables
 let textBlocks = [];
 let gdgData;
 let dataLoaded = false;
-let loadingStatus = "Loading data...";
+let currentStatus = "Loading data...";
 let gdgParser; // Instance of our GDG parser
 let soundEffects; // Sound effects manager
 
@@ -45,65 +84,37 @@ function preload() {
   // Initialize sound effects
   soundEffects = new SoundEffects();
   
-  // Load the RSS feed from GDELT
-  console.log("Loading GDELT RSS feed...");
-  updateLoadingStatus("Connecting to GDELT RSS feed...");
+  // Load the data from our server endpoint
+  console.log("Loading protest data...");
+  updateLoadingStatus("Connecting to data...");
   
-  // Try to load the real GDELT feed using fetch API instead of p5.loadXML
-  // This gives us more control over the request
-  console.log("Attempting to load GDELT RSS feed...");
-  updateLoadingStatus("Connecting to GDELT RSS feed...");
+  // Use our local server endpoint
+  const gdeltUrl = 'http://localhost:3000/api/gdelt';
+  console.log('Attempting to fetch from:', gdeltUrl);
   
-  // Use a CORS proxy to avoid certificate issues
-  const corsProxyUrl = 'https://corsproxy.io/?';
-  const gdeltUrl = 'http://data.gdeltproject.org/gdeltv3/gdg/RSS-GDG-15MINROLLUP.rss';
-  const proxyUrl = corsProxyUrl + encodeURIComponent(gdeltUrl);
-  
-  // Use fetch with the proxy URL
-  fetch(proxyUrl)
+  fetch(gdeltUrl)
     .then(response => {
+      console.log('Response status:', response.status);
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }
-      return response.text();
+      return response.json();
     })
-    .then(xmlText => {
-      console.log("Successfully loaded GDELT RSS feed");
-      updateLoadingStatus("Processing RSS feed data...");
-      
-      // Parse the XML text to a DOM object
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-      
-      try {
-        // Process the RSS feed data
-        processRSSFeed(xmlDoc);
-        
-        // Update the status message
-        const loadingStatus = document.getElementById('loading-status');
-        if (loadingStatus) {
-          loadingStatus.textContent = "Live data loaded successfully!";
-          loadingStatus.style.color = "#00ffff";
-        }
-        
-        // Start adding text blocks after a short delay
-        setTimeout(() => {
-          settings.blockIntervalId = setInterval(addNewTextBlock, settings.addBlockInterval);
-        }, 1000);
-      } catch (processError) {
-        console.error("Error processing RSS feed:", processError);
-        fallbackToSampleData();
-      }
+    .then(data => {
+      console.log('Successfully loaded protest data:', data);
+      gdgData = data;
+      dataLoaded = true;
+      updateLoadingStatus("Processing data...");
+      processData();
     })
     .catch(error => {
-      console.error("Could not load GDELT RSS feed:", error);
+      console.error('Error fetching data:', error);
+      updateLoadingStatus("Using sample data...");
       fallbackToSampleData();
     });
 }
 
-/**
- * Fall back to sample data when RSS feed cannot be loaded or processed
- */
+// Fall back to sample data when RSS feed cannot be loaded or processed
 function fallbackToSampleData() {
   updateLoadingStatus("Using sample data...");
   
@@ -121,15 +132,27 @@ function fallbackToSampleData() {
   if (!settings.blockIntervalId) {
     settings.blockIntervalId = setInterval(addNewTextBlock, settings.addBlockInterval);
   }
-  
-  // Add multiple initial text blocks immediately to populate the screen
-  console.log("Adding initial text blocks...");
-  setTimeout(() => {
-    // Add several blocks with different positions to create an interesting layout
-    for (let i = 0; i < 5; i++) {
-      addNewTextBlock();
-    }
-  }, 500);
+}
+
+function processData() {
+  if (!gdgData || !gdgData.entries || gdgData.entries.length === 0) {
+    console.error('No valid entries in GDG data');
+    fallbackToSampleData();
+    return;
+  }
+
+  // Update stats
+  settings.stats.documentsProcessed = gdgData.entries.length;
+  settings.stats.changesDetected = gdgData.entries.reduce((acc, entry) => acc + entry.changes.length, 0);
+  settings.stats.wordsRedacted = gdgData.entries.reduce((acc, entry) => {
+    return acc + entry.changes.reduce((acc2, change) => acc2 + change.from.split(' ').length, 0);
+  }, 0);
+  updateStats();
+
+  // Start adding text blocks
+  if (!settings.blockIntervalId) {
+    settings.blockIntervalId = setInterval(addNewTextBlock, settings.addBlockInterval);
+  }
 }
 
 function setup() {
@@ -295,119 +318,6 @@ function updateStats() {
 }
 
 /**
- * Process the RSS feed data from GDELT
- * @param {Object} rssData - The XML data from the RSS feed
- */
-function processRSSFeed(rssData) {
-  try {
-    // Extract items from the RSS feed
-    const items = rssData.getElementsByTagName('item');
-    console.log(`Found ${items.length} items in the RSS feed`);
-    
-    if (items.length === 0) {
-      console.warn('No items found in the RSS feed');
-      throw new Error('No items found in the RSS feed');
-    }
-    
-    // Create an array to store the processed entries
-    const entries = [];
-    
-    // Process each item in the RSS feed
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      
-      try {
-        // Get data from the item
-        const link = item.getElementsByTagName('link')[0]?.textContent || '';
-        const title = item.getElementsByTagName('title')[0]?.textContent || '';
-        const description = item.getElementsByTagName('description')[0]?.textContent || '';
-        
-        // Create an entry with the link as the source
-        const entry = {
-          source: extractDomainFromUrl(link) || 'GDELT Project',
-          changes: []
-        };
-        
-        // Try to use real content from the feed first
-        let originalText = '';
-        if (description && description.length > 20) {
-          originalText = description;
-        } else if (title && title.length > 10) {
-          originalText = title;
-        } else {
-          // Fall back to synthetic text if needed
-          originalText = generateOriginalText(link);
-        }
-        
-        // Create the redacted version
-        const redactedText = gdgParser.createRedactedVersion(originalText);
-        
-        entry.changes.push({
-          from: originalText,
-          to: redactedText
-        });
-        
-        // Track stats
-        const wordCount = originalText.split(' ').length;
-        settings.stats.wordsRedacted += wordCount;
-        settings.stats.changesDetected++;
-        
-        // Add the entry to our list
-        entries.push(entry);
-      } catch (itemError) {
-        console.warn(`Error processing item ${i}:`, itemError);
-        // Continue with next item
-        continue;
-      }
-    }
-    
-    if (entries.length === 0) {
-      throw new Error('No valid entries could be extracted');
-    }
-    
-    // Set the gdgData object with the processed entries
-    gdgData = { entries: entries };
-    dataLoaded = true;
-    updateLoadingStatus("Live data loaded successfully!");
-    
-    // Update stats
-    settings.stats.documentsProcessed = entries.length;
-    updateStats();
-    
-    console.log(`Successfully processed ${entries.length} entries from the RSS feed`);
-    
-    // Add initial blocks immediately
-    setTimeout(() => {
-      for (let i = 0; i < 3; i++) {
-        addNewTextBlock();
-      }
-    }, 500);
-  } catch (error) {
-    console.error("Error processing RSS feed:", error);
-    
-    // Fall back to sample data if there's an error
-    gdgData = gdgParser.getSampleData();
-    dataLoaded = true;
-    updateLoadingStatus("Using sample data due to processing error");
-    
-    // Update stats with sample data
-    settings.stats.documentsProcessed = gdgData.entries.length;
-    settings.stats.changesDetected = gdgData.entries.reduce((acc, entry) => acc + entry.changes.length, 0);
-    settings.stats.wordsRedacted = gdgData.entries.reduce((acc, entry) => {
-      return acc + entry.changes.reduce((acc2, change) => acc2 + change.from.split(' ').length, 0);
-    }, 0);
-    updateStats();
-    
-    // Add initial blocks with sample data
-    setTimeout(() => {
-      for (let i = 0; i < 5; i++) {
-        addNewTextBlock();
-      }
-    }, 500);
-  }
-}
-
-/**
  * Extract the domain from a URL
  * @param {string} url - The URL to extract from
  * @returns {string} The domain name
@@ -475,41 +385,6 @@ function generateRedactedText(url) {
   
   // Select a random redacted fragment
   return redactedFragments[Math.floor(Math.random() * redactedFragments.length)];
-}
-
-function processData() {
-  // Check if data is available
-  if (!gdgData || !gdgData.entries) {
-    console.warn("Data not yet available");
-    return false;
-  }
-  
-  // Only process once
-  if (textBlocks.length > 0) {
-    return true;
-  }
-  
-  console.log("Processing data:", gdgData);
-  
-  // Extract entries and render them
-  let changes = gdgData.entries;
-  
-  for (let i = 0; i < min(5, changes.length); i++) {
-    let entry = changes[i];
-    let diff = [];
-    
-    // Add source information
-    diff.push({ word: "Source: " + entry.source, type: "info" });
-    
-    for (let ch of entry.changes) {
-      diff.push({ word: ch.from.replace(/\n/g, ' '), type: "deleted" });
-      diff.push({ word: ch.to.replace(/\n/g, ' '), type: "inserted" });
-    }
-    
-    textBlocks.push(new DiffBlock(diff, 50, 150 + i * 80));
-  }
-  
-  return true;
 }
 
 function draw() {

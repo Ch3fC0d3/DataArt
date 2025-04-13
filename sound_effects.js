@@ -7,6 +7,8 @@ class SoundEffects {
     constructor() {
       this.enabled = false;
       this.initialized = false;
+      this.isPlaying = false;
+      this.ambientLoaded = false;
       this.volume = -15; // Initial volume in dB
       
       // Sound creation functions
@@ -38,6 +40,21 @@ class SoundEffects {
           distortion: 0.1,
           wet: 0.2
         }).connect(this.reverb);
+        
+        // Load ambient audio file with explicit path
+        this.ambientPlayer = new Tone.Player({
+          url: "ambient.mp3",
+          loop: true,
+          volume: -15,
+          onload: () => {
+            console.log("Ambient audio loaded successfully");
+            this.ambientLoaded = true;
+          },
+          onerror: (error) => {
+            console.error("Failed to load ambient audio:", error);
+            this.ambientLoaded = false;
+          }
+        }).connect(this.masterVolume);
         
         // Create the sounds
         this.createSounds();
@@ -198,6 +215,7 @@ class SoundEffects {
         this.backgroundNoise.start();
         this.backgroundLFO.start();
         Tone.Transport.start();
+        console.log("Background ambience started");
       }
     }
     
@@ -208,6 +226,7 @@ class SoundEffects {
         this.backgroundNoise.stop();
         this.backgroundLFO.stop();
         Tone.Transport.stop();
+        console.log("Background ambience stopped");
       }
     }
     
@@ -269,5 +288,30 @@ class SoundEffects {
       const finalPitch = Tone.Frequency("G3").transpose(pitchVariation);
       
       this.textAppearSynth.triggerAttackRelease(finalPitch, "8n");
+    }
+
+    play() {
+      if (!this.initialized || !this.ambientLoaded) {
+        console.log("Cannot play: Audio not initialized or loaded");
+        return;
+      }
+      this.isPlaying = true;
+      // Only start the ambient MP3 player
+      try {
+        this.ambientPlayer.start();
+        console.log("Ambient MP3 started");
+      } catch (error) {
+        console.error("Error starting ambient MP3:", error);
+      }
+    }
+
+    pause() {
+      if (!this.initialized) return;
+      this.isPlaying = false;
+      // Only stop the ambient MP3 player
+      if (this.ambientPlayer) {
+        this.ambientPlayer.stop();
+        console.log("Ambient MP3 stopped");
+      }
     }
   }

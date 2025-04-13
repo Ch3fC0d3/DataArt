@@ -54,6 +54,7 @@
       
       <button id="btn-toggle-sound">Sound: OFF</button>
       <button id="btn-theme">Theme: Cyber</button>
+      <button id="btn-play-audio" class="play-button">▶ Play Ambient Music</button>
     </div>
     
     <div class="stats" id="stat-panel">
@@ -67,16 +68,28 @@
         // Initialize the GDG parser
         gdgParser = new GDGParser();
         
-        // Handle user interaction to start audio context
-        document.addEventListener('click', async () => {
+        // Handle audio playback button
+        document.getElementById('btn-play-audio').addEventListener('click', async () => {
             if (!soundEffects.initialized) {
                 await soundEffects.initialize();
-                // Start audio context on first user interaction
+                // Start audio context on button click
                 try {
                     await Tone.start();
                     console.log("Audio context started successfully");
+                    // Start playing the audio
+                    soundEffects.play();
+                    document.getElementById('btn-play-audio').textContent = '⏸ Pause Audio';
                 } catch (error) {
                     console.error("Failed to start audio context:", error);
+                }
+            } else {
+                // Toggle play/pause state
+                if (soundEffects.isPlaying) {
+                    soundEffects.pause();
+                    document.getElementById('btn-play-audio').textContent = '▶ Play Audio';
+                } else {
+                    soundEffects.play();
+                    document.getElementById('btn-play-audio').textContent = '⏸ Pause Audio';
                 }
             }
         });
